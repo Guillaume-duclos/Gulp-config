@@ -3,12 +3,14 @@ const gulp         = require('gulp'),
       sass         = require('gulp-sass'),
       autoprefixer = require('gulp-autoprefixer'),
       cleanCSS     = require('gulp-clean-css'),
-      sourcemaps   = require('gulp-sourcemaps');
+      sourcemaps   = require('gulp-sourcemaps'),
+      watch        = require('gulp-watch'),
+      minify       = require('gulp-minify'),
+      babel        = require('gulp-babel');
 
-// SASS tasks
 sass.compiler = require('node-sass');
 
-gulp.task('sass', () => {
+gulp.task('build', () => {
   return gulp.src('./src/styles/scss/index.scss')
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
@@ -18,6 +20,28 @@ gulp.task('sass', () => {
     .pipe(gulp.dest('./src/styles/css'));
 });
 
-gulp.task('sass:watch', () => {
-  gulp.watch('./src/styles/scss/*.scss', ['sass']);
+gulp.task('watch', () => {
+  return watch('./src/styles/scss/*.scss', () => {
+    gulp.src('./src/styles/scss/index.scss')
+      .pipe(sourcemaps.init())
+      .pipe(sass().on('error', sass.logError))
+      .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
+      .pipe(cleanCSS({compatibility: 'ie8'}))
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('./src/styles/css'));
+  })
+});
+
+gulp.task('minify', () => {
+  gulp.src('./src/js/*.js')
+    .pipe(babel({
+      presets: ['@babel/env']
+    }))
+    .pipe(minify({
+      noSource: true,
+      ext: {min: '.js'},
+      exclude: ['tasks'],
+      ignoreFiles: ['.combo.js', '-min.js']
+    }))
+    .pipe(gulp.dest('./build/js'))
 });
