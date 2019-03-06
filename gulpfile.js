@@ -10,7 +10,7 @@ const gulp         = require('gulp'),
 
 sass.compiler = require('node-sass');
 
-// Watching changes
+// Watching changes to dev
 gulp.task('watch', () => {
   return watch('./src/styles/scss/*.scss', () => {
     gulp.src('./src/styles/scss/index.scss')
